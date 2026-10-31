@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ludo Zebra · אב טיפוס</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== 1. Main menu (FR-01) ===== -->
+<section class="screen" id="v-menu" hidden>
+  <div class="card menu-card">
+    <div class="logo" aria-hidden="true"></div>
+    <h1>Ludo Zebra</h1>
+    <p class="sub">לודו לימודי: חוקי לודו, עם שאלות מחומר הקורס בדרך</p>
+    <a class="btn primary big" href="#s02-setup">משחק חדש</a>
+    <a class="btn big" href="#s16-history">היסטוריית משחקים</a>
+    <a class="btn big" href="#s17-admin-login">ניהול שאלות</a>
+    <button class="btn big" type="button" data-inactive="יציאה סוגרת את התוכנה. באב הטיפוס הכפתור לא פעיל.">יציאה</button>
+    <p class="menu-foot">ניהול שאלות פתוח רק למנהל המערכת.</p>
+  </div>
+</section>
+
+<!-- ===== 2. Game setup (FR-03–FR-08) ===== -->
+<section class="screen" id="v-setup" hidden>
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <h1>הגדרת משחק</h1>
+        <p class="hint">בחרו כמה שחקנים משחקים ובאיזו רמה, ותנו לכל שחקן שם וצבע. התורות לפי סדר השחקנים ברשימה.</p>
+      </div>
+      <a class="btn" href="#s01-menu">חזרה</a>
+    </div>
+    <div class="setup-grid">
+      <div class="card" style="display:grid;gap:18px">
+        <div>
+          <span class="field-label">מספר שחקנים</span>
+          <div class="seg" id="count-seg" role="group" aria-label="מספר שחקנים">
+            <button type="button" data-count="2">2</button>
+            <button type="button" data-count="3">3</button>
+            <button type="button" data-count="4">4</button>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">רמת קושי</span>
+          <div class="levels" id="levels">
+            <button type="button" class="level" data-level="easy"><b>קל</b><span>לוח רגיל · קוביית צעדים בלבד · בלי שאלות והפתעות</span></button>
+            <button type="button" class="level" data-level="medium"><b>בינוני</b><span>לוח עם מסלול חיצוני · קוביית צעדים + <bdi>Boost (1–3)</bdi> · 6&nbsp;משבצות שאלה ו-2 הפתעה</span></button>
+            <button type="button" class="level" data-level="hard"><b>קשה</b><span>לוח גדול · קוביית צעדים + <bdi>UltraBoost (1–6)</bdi> · 9&nbsp;משבצות שאלה ו-3 הפתעה</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="display:grid;gap:12px">
+        <span class="field-label" style="margin:0">שחקנים</span>
+        <div class="players" id="players"></div>
+        <div id="setup-summary"></div>
+        <div class="actions">
+          <button class="btn primary big" type="button" id="start-btn">התחל משחק</button>
+          <a class="btn big" href="#s01-menu">חזרה</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. Game screen (board, dice, messages) ===== -->
+<section class="screen" id="v-game" hidden>
+  <header class="topbar">
+    <span class="brand">Ludo Zebra</span>
+    <span class="pill">רמה: בינונית</span>
+    <span class="pill">זמן משחק <span class="clock ltr" id="clock">00:00:00</span></span>
+    <span class="spacer"></span>
+    <button class="btn" type="button" id="exit-btn">יציאה לתפריט</button>
+  </header>
+  <div class="game-main">
+    <aside class="side" id="side"></aside>
+    <div class="board-wrap">
+      <div class="board" id="board" aria-label="לוח המשחק"></div>
+      <p class="board-caption">הכלים נעים עם כיוון השעון. משבצות שאלה, הגנה והפתעה מוגרלות מחדש בכל משחק.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. Results (FR-53–FR-55) ===== -->
+<section class="screen" id="v-results" hidden>
+  <div class="results">
+    <div class="card" style="display:grid;gap:16px">
+      <div>
+        <h1>המשחק הסתיים</h1>
+        <p class="muted" style="margin-top:6px">נשאר שחקן אחד בלבד שלא סיים, ולכן הוא במקום האחרון.</p>
+      </div>
+      <table class="places">
+        <tr><td class="place-no"><span class="medal g1">1</span></td><td><span class="disc yellow"></span> נועה</td><td class="muted">סיימה ראשונה</td></tr>
+        <tr><td class="place-no"><span class="medal g2">2</span></td><td><span class="disc red"></span> דנה</td><td class="muted">סיימה שנייה</td></tr>
+        <tr><td class="place-no"><span class="medal g3">3</span></td><td><span class="disc blue"></span> יוסי</td><td class="muted">סיים שלישי</td></tr>
+        <tr><td class="place-no"><span class="medal">4</span></td><td><span class="disc green"></span> עומר</td><td class="muted">נשאר אחרון</td></tr>
+      </table>
+      <div class="facts">
+        <div class="fact"><span>זמן המשחק</span><b class="ltr">00:47:12</b></div>
+        <div class="fact"><span>רמת קושי</span><b>בינונית</b></div>
+        <div class="fact"><span>מספר שחקנים</span><b>4</b></div>
+      </div>
+      <div class="saved">✓ התוצאה נשמרה בהיסטוריית המשחקים.</div>
+      <div class="actions">
+        <a class="btn primary big" href="#s02-setup">משחק חדש</a>
+        <a class="btn big" href="#s01-menu">לתפריט</a>
+      </div>
+      <p class="muted" style="font-size:14px">כדי לראות את המשחק בטבלה: לתפריט ← היסטוריית משחקים.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. History (FR-58–FR-60) ===== -->
+<section class="screen" id="v-history" hidden>
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <h1>היסטוריית משחקים</h1>
+        <p class="hint">כל המשחקים שהסתיימו, מהחדש לישן. אפשר לסנן לפי רמה ולמיין בלחיצה על כותרת עמודה.</p>
+      </div>
+      <a class="btn" href="#s01-menu">חזרה</a>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="hist-chips"></div>
+      <div class="warn-line">שורה אחת בקובץ ההיסטוריה פגומה ולכן לא מוצגת.</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl" id="hist-table"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6. Admin login (FR-61, FR-62) ===== -->
+<section class="screen" id="v-login" hidden>
+  <div class="card login">
+    <div>
+      <h1>כניסת מנהל</h1>
+      <p class="muted" style="margin-top:6px">אשף השאלות מיועד למנהל המערכת בלבד.</p>
+    </div>
+    <div id="login-error"></div>
+    <div class="form-row"><label for="admin-user">שם משתמש</label><input id="admin-user" type="text" autocomplete="off" dir="ltr"></div>
+    <div class="form-row"><label for="admin-pass">סיסמה</label><input id="admin-pass" type="password" autocomplete="off" dir="ltr"></div>
+    <p class="lock-note">אחרי 3 ניסיונות שגויים ברצף, הכניסה נחסמת ל-60 שניות.</p>
+    <div class="actions">
+      <button class="btn primary big" type="button" id="login-btn">כניסה</button>
+      <a class="btn big" href="#s01-menu">ביטול</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. Question wizard (FR-68–FR-73) ===== -->
+<section class="screen" id="v-questions" hidden>
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <h1>אשף ניהול שאלות</h1>
+        <p class="hint">מחובר כמנהל. כל שינוי נשמר מיד ויחול מהמשחק הבא.</p>
+      </div>
+      <div class="actions" style="margin:0">
+        <button class="btn" type="button" data-inactive="החלפת סיסמה לא נכללת בתהליך שנבדק באב הטיפוס.">החלפת סיסמה</button>
+        <a class="btn" href="#s01-menu">יציאה</a>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="q-chips"></div>
+      <a class="btn primary" href="#s20-add-question">+ הוספת שאלה</a>
+    </div>
+    <div class="info-line" style="margin-bottom:12px">בכל רמה חייבות להישאר לפחות 10 שאלות. ברמה קשה יש עכשיו בדיוק 10, ולכן אי אפשר למחוק ממנה.</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl" id="q-table"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 8. Add question (FR-69, FR-71) ===== -->
+<section class="screen" id="v-addq" hidden>
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <h1>הוספת שאלה</h1>
+        <p class="hint">שאלה אמריקאית: טקסט, 4 תשובות שונות, תשובה נכונה אחת ורמת קושי.</p>
+      </div>
+      <a class="btn" href="#s19-questions">ביטול</a>
+    </div>
+    <div class="card addq">
+      <div class="form-row" style="max-width:260px"><label for="aq-level">רמת קושי</label>
+        <select id="aq-level"><option value="easy">קלה</option><option value="med" selected>בינונית</option><option value="hard">קשה</option></select>
+      </div>
+      <div class="form-row"><label for="aq-text">השאלה</label><textarea id="aq-text"></textarea></div>
+      <div class="form-row"><label>תשובות (סמנו את הנכונה)</label>
+        <div id="aq-answers" style="display:grid;gap:8px"></div>
+      </div>
+      <div id="aq-summary"></div>
+      <div class="actions">
+        <button class="btn primary big" type="button" id="aq-save">שמירה</button>
+        <a class="btn big" href="#s19-questions">ביטול</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal layer (question, surprise, exit confirm) -->
+<div class="modal-back" id="modal-back" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+
+<div class="proto-badge">אב טיפוס · נתונים מדומים</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
