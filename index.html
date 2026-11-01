@@ -82,6 +82,29 @@
   </div>
 </section>
 
+<!-- ===== Live game: starts from the setup choices (players, colours, level) ===== -->
+<section class="screen" id="v-play" hidden>
+  <header class="topbar">
+    <span class="brand">Ludo Zebra</span>
+    <span class="pill" id="play-level">רמה: בינונית</span>
+    <span class="pill">זמן משחק <span class="clock ltr" id="play-clock">00:00:00</span></span>
+    <span class="spacer"></span>
+    <div class="demo-bar" id="play-demo" role="group" aria-label="קיצורי הדגמה"></div>
+    <button class="btn" type="button" id="play-exit">יציאה לתפריט</button>
+  </header>
+  <div class="table">
+    <div class="table-grid">
+      <div class="pp-col" id="pp-left"></div>
+      <div class="board-zone">
+        <div class="board pboard" id="pboard" aria-label="לוח המשחק"></div>
+        <div class="play-log" id="play-log" aria-live="polite"></div>
+        <div class="play-legend" id="play-legend"></div>
+      </div>
+      <div class="pp-col" id="pp-right"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== 4. Results (FR-53–FR-55) ===== -->
 <section class="screen" id="v-results" hidden>
   <div class="results">
@@ -207,5 +230,6 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script src="app.js"></script>
+<script src="play.js"></script>
 </body>
 </html>

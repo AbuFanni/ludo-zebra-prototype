@@ -8,7 +8,12 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
   const COLOR_NAME = { red: 'אדום', green: 'ירוק', yellow: 'צהוב', blue: 'כחול' };
-  const ARROW_INK = { red: '#E53935', green: '#2E7D32', yellow: '#D49A00', blue: '#1E88E5' };
+  const ARROW_INK = { red: '#E8262B', green: '#00A651', yellow: '#F2C200', blue: '#1A9BE6' };
+  const STAR_SVG = '<svg class="sym" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z" fill="#fff" stroke="#3B4048" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  const PAWN_SVG = '<svg viewBox="0 0 28 34" aria-hidden="true"><ellipse class="pb" cx="14" cy="28.4" rx="11.2" ry="4.4"/><path class="pb" d="M7.6 27.2C8.6 22.4 10.1 19.7 10.6 17.4h6.8c.5 2.3 2 5 3 9.8z"/><ellipse class="pr" cx="14" cy="27.5" rx="8.4" ry="2.4"/><rect class="pw" x="8.2" y="14.6" width="11.6" height="3.6" rx="1.8"/><circle class="pb" cx="14" cy="8.6" r="6.9"/><circle class="ps" cx="11.5" cy="6.2" r="2.1"/></svg>';
+  const ARROW_ROT = { '→': 0, '↓': 90, '←': 180, '↑': 270 };
+  const arrowSvg = (ink, g) => '<svg class="sym" viewBox="0 0 24 24" aria-hidden="true" style="transform:rotate(' + ARROW_ROT[g] + 'deg)"><path d="M2.5 8.8h11V3.9L21.5 12l-8 8.1v-4.9h-11z" fill="' + ink + '" stroke="rgba(0,0,0,.35)" stroke-width=".8" stroke-linejoin="round"/></svg>';
+  window.LZShared = { STAR_SVG, PAWN_SVG, arrowSvg, ARROW_INK };
   const P = { red: 'דנה', green: 'עומר', yellow: 'נועה', blue: 'יוסי' };
   const ORDER = ['red', 'green', 'yellow', 'blue'];
 
@@ -49,6 +54,7 @@
     's18-admin-error': { view: 'login', state: 'error', title: 'כניסת מנהל – שגיאה' },
     's19-questions': { view: 'questions', title: 'אשף ניהול שאלות' },
     's20-add-question': { view: 'addq', title: 'הוספת שאלה' },
+    'play': { view: 'play', title: 'משחק' },
   };
   const currentHash = () => (location.hash || '').replace('#', '') || 's01-menu';
   const setTitle = (h) => { document.title = 'Ludo Zebra · ' + (ROUTES[h] ? ROUTES[h].title : 'אב טיפוס'); };
@@ -62,7 +68,8 @@
     closeModal();
     stopClock();
     setTitle(h);
-    const enter = { setup: enterSetup, game: enterGame, history: enterHistory, login: enterLogin, questions: enterQuestions, addq: enterAddQ }[r.view];
+    if (window.LZPlay) window.LZPlay.leave();
+    const enter = { setup: enterSetup, game: enterGame, history: enterHistory, login: enterLogin, questions: enterQuestions, addq: enterAddQ, play: () => window.LZPlay && window.LZPlay.enter() }[r.view];
     if (enter) enter(r);
     window.scrollTo(0, 0);
   }
@@ -143,7 +150,7 @@
       sum.innerHTML = '<div class="summary neutral">בלחיצה על "התחל משחק" המערכת בודקת שכל השמות והצבעים תקינים.</div>';
       btn.setAttribute('aria-disabled', 'false');
     } else if (v.total > 0) {
-      sum.innerHTML = '<div class="summary bad">אי אפשר להתחיל: יש לתקן ' + (v.total === 1 ? 'שדה אחד' : v.total + ' שדות') + ' המסומנים באדום.</div>';
+      sum.innerHTML = '<div class="summary bad">אי אפשר להתחיל: ' + (v.total === 1 ? 'יש לתקן את השדה המסומן באדום.' : 'יש לתקן ' + v.total + ' שדות המסומנים באדום.') + '</div>';
       btn.setAttribute('aria-disabled', 'true');
     } else {
       sum.innerHTML = '<div class="summary good">✓ הכל תקין. אפשר להתחיל את המשחק.</div>';
@@ -160,7 +167,10 @@
   function onStart() {
     if ($('#start-btn').getAttribute('aria-disabled') === 'true') { toast('קודם מתקנים את השדות המסומנים באדום.'); return; }
     const v = validate(setup);
-    if (v.total === 0) { go('s05-board'); return; }
+    if (v.total === 0) {
+      try { sessionStorage.setItem('lz-setup', JSON.stringify({ level: setup.level, players: setup.players.slice(0, setup.count).map((p) => ({ name: p.name, color: p.color })) })); } catch (e) { /* private mode */ }
+      go('play'); return;
+    }
     setup.show = true;
     if (currentHash() === 's03-setup-errors') { updateSetupUI(); return; }
     keepSetup = true;
@@ -213,8 +223,8 @@
         const sp = SPECIAL[r + ',' + c];
         if (sp) {
           if (sp.t === 'start') { d.classList.add('start', sp.c); d.innerHTML = '<span class="sym">#</span>'; d.title = 'משבצת התחלה'; }
-          else if (sp.t === 'arrow') { d.classList.add('arrow'); d.innerHTML = '<span class="sym" style="color:' + ARROW_INK[sp.c] + '">' + sp.g + '</span>'; d.title = 'משבצת חץ'; }
-          else if (sp.t === 'star') { d.classList.add('star'); d.innerHTML = '<span class="sym">★</span>'; d.title = 'משבצת הגנה'; }
+          else if (sp.t === 'arrow') { d.classList.add('arrow'); d.innerHTML = arrowSvg(ARROW_INK[sp.c], sp.g); d.title = 'משבצת חץ'; }
+          else if (sp.t === 'star') { d.classList.add('star'); d.innerHTML = STAR_SVG; d.title = 'משבצת הגנה'; }
           else if (sp.t === 'q') { d.classList.add('q-' + sp.lv); d.innerHTML = '<span class="sym">?</span>'; d.title = 'משבצת שאלה'; }
           else if (sp.t === 'surprise') { d.classList.add('surprise'); d.innerHTML = '<span class="sym">!</span>'; d.title = 'משבצת הפתעה'; }
         }
@@ -247,6 +257,7 @@
     const p = document.createElement('div');
     p.className = 'piece ' + color;
     p.dataset.color = color;
+    p.innerHTML = PAWN_SVG;
     return p;
   }
 
@@ -332,11 +343,11 @@
   }
   const legendBox = () =>
     '<div class="box legend">' +
-    '<span><i class="mini" style="color:#B8901A">★</i>הגנה</span>' +
+    '<span><i class="mini">' + STAR_SVG + '</i>הגנה</span>' +
     '<span><i class="mini" style="background:#1C2330;color:#fff">#</i>התחלה</span>' +
-    '<span><i class="mini" style="color:#E53935">→</i>חץ (רק לכלי בצבע שלו)</span>' +
+    '<span><i class="mini">' + arrowSvg(ARROW_INK.red, '→') + '</i>חץ (רק לכלי בצבע שלו)</span>' +
     '<span><i class="mini" style="background:var(--q-easy-l);color:var(--q-easy)">?</i><i class="mini" style="background:var(--q-med-l);color:var(--q-med)">?</i><i class="mini" style="background:var(--q-hard-l);color:var(--q-hard)">?</i>שאלה קלה / בינונית / קשה</span>' +
-    '<span><i class="mini" style="background:var(--surprise-l);color:var(--surprise)">!</i>הפתעה</span>' +
+    '<span><i class="mini" style="background:var(--surprise);color:#fff;border-color:#6C2E86">!</i>הפתעה</span>' +
     '</div>';
   const btn = (href, text, primary) => '<a class="btn big wide' + (primary ? ' primary' : '') + '" href="#' + href + '">' + text + '</a>';
 
