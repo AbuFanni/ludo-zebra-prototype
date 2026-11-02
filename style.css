@@ -352,3 +352,160 @@ p { margin: 0; }
 .demo-bar .dchip { width: 18px; height: 18px; border-radius: 4px; display: inline-grid; place-items: center; font-style: normal; font-weight: 900; font-size: 12px; line-height: 1; border: 1.5px solid; }
 .demo-bar .dchip.q-easy { background: var(--q-easy-l); color: var(--q-easy); } .demo-bar .dchip.q-med { background: var(--q-med-l); color: var(--q-med); }
 .demo-bar .dchip.q-hard { background: var(--q-hard-l); color: var(--q-hard); } .demo-bar .dchip.surprise { background: var(--surprise); color: #fff; border-color: #6C2E86; }
+
+/* ===== Phone layout (screens up to 760px wide). Everything above is the desktop layout and stays as it is. ===== */
+.demo-toggle { display: none; }      /* the phone-only "demo" menu button */
+.demo-items { display: contents; }   /* on desktop the shortcuts sit in the bar exactly as before */
+@media (max-width: 760px) {
+  body { font-size: 15px; }
+  .proto-badge { position: static; display: table; margin: 10px auto 14px; font-size: 11px; padding: 3px 10px; }  /* at the end of the page, not over it */
+  .toast { max-width: calc(100vw - 24px); bottom: 44px; font-size: 14px; }
+  .btn.big { min-height: 50px; font-size: 17px; }
+
+  /* pages */
+  .page { padding: 16px 12px 24px; }
+  .page-head { flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+  .page-head > div:first-child { flex: 1 1 200px; }
+  .page-head h1 { font-size: 23px; }
+  .page-head .hint { font-size: 14px; }
+  .card { padding: 14px; border-radius: 12px; }
+  .actions { flex-wrap: wrap; }
+
+  /* menu */
+  .menu-card { width: auto; margin: 16px; padding: 26px 18px 20px; }
+  .menu-card h1 { font-size: 32px; }
+
+  /* setup */
+  .setup-grid { grid-template-columns: 1fr; gap: 12px; }
+  .prow { grid-template-columns: 56px 1fr; gap: 8px 10px; padding: 10px; }
+  .prow > :nth-child(3) { grid-column: 2; }
+  .prow .pnum { font-size: 14px; }
+  .swatches { padding-top: 0; }
+  .swatch { width: 36px; height: 36px; }
+
+  /* tables scroll sideways inside their card */
+  #v-history .card, #v-questions .card { overflow-x: auto !important; }
+  .tbl { font-size: 14px; }
+  .tbl th, .tbl td { padding: 8px; }
+  #q-table td:nth-child(3) { min-width: 170px; }
+
+  /* results */
+  .results { margin: 16px 12px 0; }
+  .results h1 { font-size: 27px; }
+  .places { font-size: 16px; }
+  .places td { padding: 10px 6px; }
+  .place-no { width: 48px; }
+  .fact b { font-size: 17px; }
+
+  /* admin login */
+  .login { width: auto; margin: 20px 12px 0; }
+  .login h1 { font-size: 24px; }
+
+  /* windows */
+  .modal-back { padding: 12px; grid-template-columns: minmax(0, 1fr); }
+  .modal { width: 100%; max-width: 480px; justify-self: center; max-height: calc(100vh - 24px); overflow-y: auto; border-radius: 14px; }
+  .modal-head { padding: 12px 14px; flex-wrap: wrap; gap: 8px 10px; }
+  .modal-head h2 { font-size: 19px; }
+  .modal-body { padding: 4px 14px 14px; gap: 10px; }
+  .modal-foot { padding: 10px 14px 12px; flex-wrap: wrap; }
+  .modal-foot .note { flex: 1 1 100%; font-size: 13px; }
+  .modal-foot .btn { flex: 1 1 auto; }
+  .answers { grid-template-columns: 1fr; gap: 8px; }
+  .ans { min-height: 48px; font-size: 16px; padding: 6px 12px; }
+  .q-text { font-size: 17px; }
+  .modal-body > .ev { font-size: 19px; }
+  .ev-list { grid-template-columns: 1fr; }
+  .ev-list .ev { font-size: 14px; padding: 6px 10px; }
+  .drawn b { font-size: 19px; }
+  .rival { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+
+  /* top bar of both game screens: level, clock, demo menu, exit */
+  .topbar { height: auto; min-height: 50px; padding: 6px 10px; gap: 8px; position: relative; }
+  .topbar .brand { display: none; }
+  .topbar .pill:has(.clock) { font-size: 0; }  /* hides the words 'game time'; the clock keeps its own size */
+  .topbar .pill[data-short] { font-size: 0; }
+  .topbar .pill[data-short]::after { content: attr(data-short); font-size: 13px; }
+  .topbar .pill { font-size: 13px; padding: 4px 10px; white-space: nowrap; }
+  .topbar .clock { font-size: 15px; letter-spacing: .5px; }
+  .topbar .btn { min-height: 36px; padding: 0 12px; }
+  #play-exit, #exit-btn { font-size: 0; }
+  #play-exit::after, #exit-btn::after { content: "יציאה"; font-size: 13px; }
+  .topbar .demo-toggle { display: inline-flex; font-size: 13px; }
+  .topbar .demo-toggle[aria-expanded="true"] { background: rgba(255,255,255,.18); }
+  .demo-items, .demo-items .demo-label { display: none; }
+  .demo-bar.open .demo-items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; position: absolute; top: calc(100% + 6px); left: 8px; right: 8px; z-index: 30;
+    background: #1C2330; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
+  .demo-items [data-demo="mid"], .demo-items .demo-note { grid-column: 1 / -1; }
+  .topbar .demo-items .btn { min-height: 44px; font-size: 14px; }
+  .demo-items .demo-note { text-align: center; padding: 4px 0; }
+
+  /* live game: current player on top, board, then the other players */
+  #v-play .table { min-height: 0; display: block; padding: 8px; }
+  .table-grid { direction: rtl; display: flex; flex-wrap: wrap; gap: 8px; }
+  .pp-col { display: contents; }
+  .pp-col > .pp { align-self: stretch; }
+  .pp { order: 3; flex: 1 1 0; min-width: 0; padding: 8px; border-width: 2px; border-radius: 12px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+  .pp.empty { display: none; }
+  .pp.active { order: 1; flex: 1 1 100%; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "head stat" "dice act" "form form";
+    align-items: center; gap: 8px 12px; padding: 10px 12px; box-shadow: 0 3px 0 rgba(0,0,0,.25), 0 0 0 3px rgba(255,255,255,.35), 0 0 16px 3px var(--pc); }
+  .board-zone { order: 2; flex: 1 1 100%; gap: 8px; }
+  .pp-head .avatar { width: 36px; height: 36px; font-size: 17px; }
+  .pp-head b { font-size: 16px; }
+  .pp-head small { font-size: 12px; }
+  .pp:not(.active) .pp-head { gap: 6px; }
+  .pp:not(.active) .pp-head .avatar { width: 28px; height: 28px; font-size: 14px; border-width: 2px; }
+  .pp:not(.active) .pp-head b { font-size: 14px; }
+  .pp:not(.active) .pp-head small { display: none; }
+  .pp:not(.active) .pp-stat { font-size: 11.5px; margin-top: 4px; text-wrap: balance; }
+  .pp-place { font-size: 13px; margin-top: 4px; }
+  .pp.active .pp-head { grid-area: head; }
+  .pp.active .pp-stat { grid-area: stat; margin: 0; text-align: end; font-size: 12px; }
+  .pp.active .pp-dice { grid-area: dice; margin: 0; gap: 8px; }
+  .pp.active .pp-formula { grid-area: form; margin: 0; font-size: 15px; }
+  .pp.active .roll, .pp.active .pp-hint { grid-area: act; margin: 0; }
+  .pp.active .pp-place { grid-column: 1 / -1; }
+  .pp.active .pdie { width: 44px; height: 44px; padding: 5px; border-width: 2px; border-radius: 10px; }
+  .pp.active .pdie .pip { width: 8px; height: 8px; }
+  .pp.active .pdie.blank { font-size: 18px; }
+  .pp .roll { min-height: 48px; font-size: 16px; }
+  .pp-hint { font-size: 14px; }
+  .play-log { font-size: 13px; padding: 6px 10px; min-height: 0; }
+  .play-log .last { font-size: 14px; }
+  .play-legend { font-size: 12px; gap: 4px 10px; }
+  .play-legend .mini { width: 20px; height: 20px; }
+
+  /* staged game screens: turn, board, then the rest of the side column */
+  .game-main { flex-direction: column; align-items: stretch; padding: 8px; gap: 8px; }
+  .side { display: contents; }
+  .side > * { order: 3; }
+  .side > .turn { order: 1; }
+  .board-wrap { order: 2; align-self: center; }
+  .board-caption { display: none; }  /* the legend below explains the squares */
+  .box { padding: 10px 12px; }
+  .turn .who { font-size: 19px; }
+  .turn .what { font-size: 13.5px; }
+  .dice-row { flex-wrap: wrap; gap: 10px; }
+  .formula { flex: 1 1 150px; min-width: 0; }
+  .formula .eq { font-size: 20px; }
+  .formula:has(.eq[dir="rtl"]) { flex-basis: 100%; }  /* the written-out formula needs the full row */
+  .formula .eq[dir="rtl"] { font-size: 16px !important; }
+  .side > .btn.big.primary { position: sticky; bottom: 10px; z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.28); }  /* main action stays in reach */
+  .die { width: 48px; height: 48px; padding: 6px; }
+  .pip { width: 8px; height: 8px; }
+  .plist { grid-template-columns: 1fr; }
+  .legend { font-size: 12px; }
+  .step-note { font-size: 14.5px; }
+
+  /* both boards: squares and pieces scale with the square size */
+  .board { border-radius: 8px; }
+  .castle .yard { border-radius: 8px; border-width: 1.5px; }
+  .slot:empty { border-width: 1.5px; }
+  #board .cell { font-size: calc(var(--cell) * .46); }
+  #board .cell.start { font-size: calc(var(--cell) * .52); }
+  #board .cell .piece { width: calc(var(--cell) * .76); height: calc(var(--cell) * .92); }
+  #board .slot { width: calc(var(--cell) * 1.45); height: calc(var(--cell) * 1.6); }
+  #board .slot:empty { width: calc(var(--cell) * .95); height: calc(var(--cell) * .95); }
+  #board .slot .piece { width: calc(var(--cell) * 1.2); height: calc(var(--cell) * 1.46); }
+  .cell.q-easy .sym, .cell.q-med .sym, .cell.q-hard .sym, .cell.surprise .sym { font-size: calc(var(--cell) * .46); border-radius: 3px; border-width: 1px; }
+  .piece.pick::before { width: calc(var(--cell) * 1.05); height: calc(var(--cell) * 1.05); border-width: 2px; }
+}

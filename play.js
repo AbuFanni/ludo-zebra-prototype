@@ -134,6 +134,14 @@
 
   /* ---------- state ---------- */
   let S = null, clock = null, busy = null;
+  const phoneMQ = window.matchMedia('(max-width: 760px)');
+  function cellPx() { // desktop: the level's fixed size; phone: fit the board to the screen width
+    if (!phoneMQ.matches) return S.lv.cell;
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    return Math.max(12, Math.floor((w - 16 - 6) / S.G));
+  }
+  function sizeBoard() { if (S) $('#pboard').style.setProperty('--cell', cellPx() + 'px'); }
+  window.addEventListener('resize', sizeBoard);
   const cells = {}, yards = {};
   let centerTray = null;
   const shared = () => window.LZShared || {};
@@ -161,6 +169,7 @@
     };
     S.sp = buildSpecials(G, lv.R, lv);
     $('#play-level').textContent = 'רמה: ' + lv.he;
+    $('#play-level').dataset.short = lv.he; // the phone bar shows only the level name
     $('#play-clock').textContent = '00:00:00';
     clock = setInterval(() => { S.secs += 1; $('#play-clock').textContent = fmt(S.secs); }, 1000);
     buildBoard();
@@ -175,7 +184,7 @@
   function buildBoard() {
     const { G, R, sp } = S, b = $('#pboard'), sh = shared();
     b.innerHTML = '';
-    b.style.setProperty('--cell', S.lv.cell + 'px');
+    b.style.setProperty('--cell', cellPx() + 'px');
     b.style.gridTemplateColumns = 'repeat(' + G + ', var(--cell))';
     b.style.gridTemplateRows = 'repeat(' + G + ', var(--cell))';
     Object.keys(cells).forEach((k) => delete cells[k]);
@@ -277,7 +286,7 @@
     $('#pp-right').innerHTML = panel('green') + panel('yellow');
     renderPieces();
     $('#play-log').innerHTML = S.log.slice(-2).map((m, i, a) => '<div class="' + (i === a.length - 1 ? 'last' : '') + '">' + m + '</div>').join('');
-    $$('#play-demo button').forEach((b) => { b.disabled = S.phase !== 'roll'; });
+    $$('#play-demo [data-demo]').forEach((b) => { b.disabled = S.phase !== 'roll'; });
   }
   function say(m) { S.log.push(m); }
 
@@ -456,11 +465,12 @@
   /* ---------- demo shortcuts: reach any feature in class without waiting for the dice ---------- */
   function buildDemo() {
     const q = S.lv.q > 0; // SRS Table 4: the easy board has no question or surprise squares
-    $('#play-demo').innerHTML = '<span class="demo-label">הדגמה:</span>' +
+    $('#play-demo').classList.remove('open');
+    $('#play-demo').innerHTML = '<button type="button" class="btn demo-toggle" data-demotoggle aria-expanded="false">הדגמה</button><div class="demo-items"><span class="demo-label">הדגמה:</span>' +
       '<button type="button" class="btn" data-demo="mid" title="מעביר את הכלים למצב של אמצע משחק">אמצע משחק</button>' +
       (q ? ['easy', 'med', 'hard'].map((l) => '<button type="button" class="btn" data-demo="q" data-lv="' + l + '" title="הכלי של השחקן שבתור הולך למשבצת שאלה ' + QLV[l] + '"><i class="dchip q-' + l + '">?</i>שאלה ' + QLV[l] + '</button>').join('') +
         '<button type="button" class="btn" data-demo="s" title="הכלי של השחקן שבתור הולך למשבצת הפתעה"><i class="dchip surprise">!</i>הפתעה</button>'
-        : '<span class="demo-note">ברמה קלה אין משבצות שאלה והפתעה</span>');
+        : '<span class="demo-note">ברמה קלה אין משבצות שאלה והפתעה</span>') + '</div>';
   }
   const MID = [ // where each player's 4 pieces stand in the middle of a game
     [{ at: 'home' }, { at: 'lane' }, { star: 0.45 }, { at: 'castle' }],
@@ -493,7 +503,7 @@
     });
     S.places = []; S.dice = null; S.sixes = 0; S.ultraNext = false; S.noExtra = false;
     S.secs = Math.max(S.secs, 754); $('#play-clock').textContent = fmt(S.secs);
-    say('הדגמה: קפצנו לאמצע המשחק. ל' + S.players[1].name + ' יש חסימה כפולה (Double Block).');
+    say('הדגמה: קפצנו לאמצע המשחק. ל' + S.players[1].name + ' יש חסימה כפולה (Double\u00a0Block).'); // no line break inside the English term
     render();
   }
   function demoLand(kind, lvq) { // the current player's piece walks to a question square of that level, or to a surprise square
@@ -533,11 +543,21 @@
     busy = setTimeout(step, 200);
   }
 
+  function closeDemo() { // the phone demo menu closes after any other tap
+    const bar = $('#play-demo');
+    if (!bar.classList.contains('open')) return;
+    bar.classList.remove('open');
+    const tg = $('[data-demotoggle]', bar); if (tg) tg.setAttribute('aria-expanded', 'false');
+  }
+
   /* ---------- input ---------- */
   document.addEventListener('click', (e) => {
     if ($('#v-play').hidden || !S) return;
     const t = e.target;
     if (t.closest('#play-roll')) { roll(); return; }
+    const tg = t.closest('[data-demotoggle]');
+    if (tg) { const open = !$('#play-demo').classList.contains('open'); $('#play-demo').classList.toggle('open', open); tg.setAttribute('aria-expanded', String(open)); return; }
+    closeDemo();
     const dm = t.closest('[data-demo]');
     if (dm) { if (dm.dataset.demo === 'mid') demoMid(); else demoLand(dm.dataset.demo, dm.dataset.lv); return; }
     const pc = t.closest('#pboard .piece.pick');

@@ -768,8 +768,32 @@
     if (e.target.name === 'aq-right') { aq.right = +e.target.value; updateAddQ(); }
   });
 
+  /* ---------- phone ---------- */
+  const phoneMQ = window.matchMedia('(max-width: 760px)');
+  function sizeBoard() { // phone: fit the staged board to the screen width; desktop keeps the 37px squares
+    const b = $('#board');
+    if (!phoneMQ.matches) { b.style.removeProperty('--cell'); return; }
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    b.style.setProperty('--cell', Math.max(12, Math.floor((w - 16 - 6) / N)) + 'px');
+  }
+  window.addEventListener('resize', sizeBoard);
+  // squares are small on a phone: a tap near a highlighted piece picks it (both boards)
+  document.addEventListener('click', (e) => {
+    if (!phoneMQ.matches || !e.target.closest) return;
+    const board = e.target.closest('#board, #pboard');
+    if (!board || e.target.closest('.piece.pick')) return;
+    let best = null, bd = Infinity;
+    $$('.piece.pick', board).forEach((p) => {
+      const r = p.getBoundingClientRect(), d = Math.hypot(r.left + r.width / 2 - e.clientX, r.top + r.height / 2 - e.clientY);
+      if (d < bd) { bd = d; best = p; }
+    });
+    const cell = parseFloat(getComputedStyle(board).getPropertyValue('--cell')) || 20;
+    if (best && bd <= Math.max(30, cell * 1.6)) { e.stopPropagation(); e.preventDefault(); best.click(); }
+  }, true);
+
   /* ---------- start ---------- */
   buildBoard();
+  sizeBoard();
   window.addEventListener('hashchange', route);
   route();
 })();
